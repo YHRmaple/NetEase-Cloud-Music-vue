@@ -1,60 +1,39 @@
 <template>
-  <el-container>
-    <el-header>
-      <div class="top-Nav" :style="{ width: screenWidth + 'px' }">
-        <el-image alt="网抑云" style="width: 177px; height: 66px" :src="url"></el-image>
-        <!-- 导航栏 -->
-        <el-menu
-          :router="true"
-          :default-active="activePath"
-          class="Nav-menu"
-          mode="horizontal"
-          background-color="#242424"
-          text-color="#C2C2C2"
-          active-text-color="#F9F9F9"
-        >
-          <!-- 发现音乐 -->
-          <el-menu-item :index="menulist[0].path" @click="saveNavState(menulist[0].path)">
-            {{ menulist[0].authName }}
-            <sub :class="{ triangle: isDisplay[0] }"></sub>
-          </el-menu-item>
-          <!-- 我的音乐 -->
-          <el-menu-item :index="menulist[1].path" @click="saveNavState(menulist[1].path)">
-            {{ menulist[1].authName }}
-            <sub :class="{ triangle: isDisplay[1] }"></sub>
-          </el-menu-item>
-          <!-- 朋友 -->
-          <el-menu-item :index="menulist[2].path" @click="saveNavState(menulist[2].path)">
-            {{ menulist[2].authName }}
-            <sub :class="{ triangle: isDisplay[2] }"></sub>
-          </el-menu-item>
-          <!-- 商城 -->
-          <el-menu-item>
-            <a href="https://music.163.com/store/product" target="_blank" style="text-decoration: none;">商城</a>
-          </el-menu-item>
-          <!-- 音乐人 -->
-          <el-menu-item index="5">音乐人</el-menu-item>
-          <!-- 下载客户端 -->
-          <el-menu-item index="6">
-            <el-badge value="Hot" class="sup-Hot">
-              下载客户端
-            </el-badge>
-          </el-menu-item>
-        </el-menu>
-        <!-- 搜索栏 -->
-        <el-input size="small" :style="inputStyle" class="search-input" placeholder="音乐/视频/电台/用户">
-          <i slot="prefix" class="el-input__icon el-icon-search"></i>
-        </el-input>
-        <!-- 创作者中心 -->
-        <el-button round size="small" class="creator-btn top-link">创作者中心</el-button>
-        <!-- 登录 -->
-        <el-link class="login-text top-link" @click="displayTriangle()">登录</el-link>
-      </div>
-    </el-header>
-    <el-main>
+  <div>
+    <div class="top-Nav" :style="{ width: screenWidth + 'px' }">
+      <el-image alt="网抑云" style="width: 177px; height: 66px" :src="url"></el-image>
+      <!-- 导航栏 -->
+      <el-menu :router="true" :default-active="activePath" mode="horizontal" background-color="#242424" text-color="#C2C2C2" active-text-color="#F9F9F9">
+        <el-menu-item :index="item.path" v-for="item in menulist" :key="item.id" @click="saveNavState(item.path)">
+          {{ item.authName }}
+          <sub :class="{ triangle: item.isDisplay }"></sub>
+        </el-menu-item>
+        <!-- 商城 -->
+        <el-menu-item>
+          <a href="https://music.163.com/store/product" target="_blank" style="text-decoration: none;">商城</a>
+        </el-menu-item>
+        <!-- 音乐人 -->
+        <el-menu-item index="5">音乐人</el-menu-item>
+        <!-- 下载客户端 -->
+        <el-menu-item index="6">
+          <el-badge value="Hot" class="sup-Hot">
+            下载客户端
+          </el-badge>
+        </el-menu-item>
+      </el-menu>
+      <!-- 搜索栏 -->
+      <el-input size="small" :style="inputStyle" class="search-input" placeholder="音乐/视频/电台/用户">
+        <i slot="prefix" class="el-input__icon el-icon-search"></i>
+      </el-input>
+      <!-- 创作者中心 -->
+      <el-button round size="small" class="creator-btn top-link">创作者中心</el-button>
+      <!-- 登录 -->
+      <el-link class="login-text top-link" @click="displayTriangle()">登录</el-link>
+    </div>
+    <div>
       <router-view></router-view>
-    </el-main>
-  </el-container>
+    </div>
+  </div>
 </template>
 <script>
 export default {
@@ -63,26 +42,26 @@ export default {
       url: require('../assets/logo.jpg'),
       inputStyle: 'width:160px;height:32px',
       screenWidth: window.screen.width,
-      isDisplay: [false, false, false],
+      /// isDisplay: false,
       activePath: '/',
       menulist: [
         {
           id: '0',
           authName: '发现音乐',
           path: '/',
-          children: []
+          isDisplay: false
         },
         {
           id: '1',
           authName: '我的音乐',
           path: '/my',
-          children: []
+          isDisplay: false
         },
         {
           id: '2',
           authName: '朋友',
           path: '/friends',
-          children: []
+          isDisplay: false
         }
         /* {
           id:'4',
@@ -95,7 +74,7 @@ export default {
   created() {
     if (window.sessionStorage.getItem('navState') === null) {
       this.activePath = '/'
-      this.isDisplay[0] = true
+      this.menulist[0].isDisplay = true
     } else {
       this.activePath = window.sessionStorage.getItem('navState')
       this.displayTriangle()
@@ -105,6 +84,7 @@ export default {
     // 保存导航当前激活状态
     saveNavState(path) {
       window.sessionStorage.setItem('navState', path)
+      this.resetSetItem('subPath', '/discover')
       this.activePath = path
       this.displayTriangle()
     },
@@ -113,19 +93,19 @@ export default {
       // console.log(path)
       switch (path) {
         case '/':
-          this.isDisplay[1] = false
-          this.isDisplay[2] = false
-          this.isDisplay[0] = true
+          this.menulist[1].isDisplay = false
+          this.menulist[2].isDisplay = false
+          this.menulist[0].isDisplay = true
           break
         case '/my':
-          this.isDisplay[0] = false
-          this.isDisplay[2] = false
-          this.isDisplay[1] = true
+          this.menulist[0].isDisplay = false
+          this.menulist[2].isDisplay = false
+          this.menulist[1].isDisplay = true
           break
         case '/friends':
-          this.isDisplay[1] = false
-          this.isDisplay[0] = false
-          this.isDisplay[2] = true
+          this.menulist[0].isDisplay = false
+          this.menulist[1].isDisplay = false
+          this.menulist[2].isDisplay = true
           break
       }
     }
@@ -140,7 +120,6 @@ export default {
   align-items: center;
   justify-content: center;
   background-color: #242424;
-  // height: 66px;
 }
 .search-input {
   margin-left: 50px;

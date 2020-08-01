@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { Button, Menu, Submenu, MenuItem, MenuItemGroup, Image, Input, Link, Badge, Container, Header, Main } from 'element-ui'
+import { Button, Carousel, CarouselItem, Menu, Submenu, MenuItem, MenuItemGroup, Image, Input, Link, Badge, Container, Header, Main } from 'element-ui'
 
 Vue.use(Button)
 Vue.use(Menu)
@@ -13,3 +13,5 @@ Vue.use(Badge)
 Vue.use(Container)
 Vue.use(Header)
 Vue.use(Main)
+Vue.use(Carousel)
+Vue.use(CarouselItem)
