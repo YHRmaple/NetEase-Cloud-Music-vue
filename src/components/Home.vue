@@ -13,9 +13,9 @@
           <a href="https://music.163.com/store/product" target="_blank" style="text-decoration: none;">商城</a>
         </el-menu-item>
         <!-- 音乐人 -->
-        <el-menu-item index="5">音乐人</el-menu-item>
+        <el-menu-item><a href="https://music.163.com/nmusician/web/index" target="_blank" style="text-decoration: none;">音乐人</a></el-menu-item>
         <!-- 下载客户端 -->
-        <el-menu-item index="6">
+        <el-menu-item index="/download">
           <el-badge value="Hot" class="sup-Hot">
             下载客户端
           </el-badge>
@@ -63,11 +63,6 @@ export default {
           path: '/friends',
           isDisplay: false
         }
-        /* {
-          id:'4',
-          authName:'商城',
-          path:'/store/product'
-        } */
       ]
     }
   },

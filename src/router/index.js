@@ -10,6 +10,7 @@ import playlist from '../components/discover/playlist.vue'
 import toplist from '../components/discover/toplist.vue'
 import my from '../components/myMusic.vue'
 import friends from '../components/friends.vue'
+import download from '../components/download.vue'
 
 Vue.use(VueRouter)
 
@@ -57,6 +58,10 @@ const routes = [
       {
         path: '/friends',
         component: friends
+      },
+      {
+        path: '/download',
+        component: download
       }
     ]
   }
