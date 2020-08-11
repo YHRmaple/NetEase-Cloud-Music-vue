@@ -79,7 +79,7 @@ export default {
 .el-menu.el-menu--horizontal {
   border-bottom: 0;
   padding-left: 290px;
-  width: 600px;
+  width: 900px;
   > .el-menu-item {
     border-bottom: 0;
     height: 20px;

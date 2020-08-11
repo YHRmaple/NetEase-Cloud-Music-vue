@@ -12,18 +12,50 @@
       <!-- 左侧 -->
       <div class="left-list">
         <div class="recommend">
-          <div class="circle"></div>
-          <span style="margin-left:10px">热门推荐</span>
-          <div class="tab">
-            <span v-for="tag in hotPlayList" :key="tag.id">
-              {{ tag.name }}
-              <span style="margin: 0 20px 0 20px">|</span>
-            </span>
+          <div class="top-head">
+            <div class="circle"></div>
+            <router-link to="/discover/playlist" class="hot-rec">
+              <span style="margin-left:10px">热门推荐</span>
+            </router-link>
+            <div class="tab">
+              <span v-for="tag in hotPlayList" :key="tag.id">
+                <router-link :to="tag.path">{{ tag.name }}</router-link>
+                <span style="margin: 0 20px 0 20px">|</span>
+              </span>
+            </div>
+            <router-link to="/discover/playlist" class="more" @click.native="changePath()">
+              更多
+            </router-link>
+            <i class="el-icon-right" style="font-size:12px;color:#C10D0C;font-weight: 1000"></i>
           </div>
-          <span class="more">更多</span>
+          <div class="album-list">
+            <ul>
+              <li v-for="album in personalizedList" :key="album.id">
+                <div class="u-cover">
+                  <el-image style="width:140px;height:140px" :src="album.picUrl"></el-image>
+                  <div class="bottom">
+                    <i class="el-icon-headset" style="margin-left:5px"></i>
+                    {{ parseInt(album.playCount / 10000) }}万
+                    <i class="el-icon-video-play" style="float:right;font-size:20px;line-height:27px;margin-right:8px"></i>
+                  </div>
+                </div>
+                <p>{{ album.name }}</p>
+              </li>
+            </ul>
+          </div>
         </div>
-        <div class="new-album">新碟上架</div>
-        <div class="Leaderboard">榜单</div>
+        <div class="new-album">
+          <div class="top-head2">
+            <div class="circle2" style="width: 15px;height: 15px;border: 4px solid #c10d0c;border-radius: 50%;"></div>
+            <router-link to="/discover/playlist" class="hot-rec">
+              <span style="margin-left:10px">新碟上架</span>
+            </router-link>
+            <router-link to="/discover/playlist" class="more" @click.native="changePath()">
+              更多
+            </router-link>
+            <i class="el-icon-right" style="font-size:12px;color:#C10D0C;font-weight: 1000"></i>
+          </div>
+        </div>
       </div>
       <!-- 右侧 -->
       <div class="right-list">
@@ -35,7 +67,7 @@
   </div>
 </template>
 <script>
-// import { HotPlayList } from '../../API/discover'
+import { getPersonalized } from '../../API/discover'
 export default {
   data() {
     return {
@@ -104,32 +136,43 @@ export default {
       ],
       hotPlayList: [
         {
+          path: '/discover/playlist',
           name: '华语',
           id: 1
         },
         {
+          path: '/discover/playlist',
           name: '流行',
           id: 2
         },
         {
+          path: '/discover/playlist',
           name: '电子',
           id: 3
         }
-      ]
+      ],
+      getInfo: {
+        limit: 8
+      },
+      personalizedList: []
     }
   },
   created() {
-    /* this.getHotPlayList() */
+    this.getPersonalizedList()
   },
   methods: {
-    /* getHotPlayList() {
-      HotPlayList().then(res => {
-        this.hotPlayList = res.data.tags
-        console.log(this.hotPlayList)
+    getPersonalizedList() {
+      getPersonalized(this.getInfo).then(res => {
+        this.personalizedList = res.data.result
+        console.log(this.personalizedList)
       })
-    }, */
+    },
     downLoad() {
       this.$router.push('/download')
+    },
+    changePath() {
+      this.resetSetItem('subPath', '/discover/playlist')
+      console.log('123')
     }
   }
 }
@@ -163,27 +206,105 @@ export default {
   border: 1px solid #d3d3d3;
 }
 .recommend {
-  font-size: 20px;
-  border-bottom: 2px solid #c10d0c;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding-bottom: 5px;
-  > .tab {
-    margin: 0 0 0 20px;
-    color: #666;
-    font-size: 12px;
+  > .top-head {
+    font-size: 20px;
+    border-bottom: 2px solid #c10d0c;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-bottom: 5px;
+    > .hot-rec {
+      color: #333333;
+    }
+    > .hot-rec:hover {
+      text-decoration: none;
+      color: #333333;
+    }
+    > .tab {
+      margin: 0 0 0 20px;
+      color: #666;
+      font-size: 12px;
+    }
+    > .more {
+      // float: right;
+      margin-left: 300px;
+      font-size: 12px;
+      color: #666;
+    }
+    > .circle {
+      width: 15px;
+      height: 15px;
+      border: 4px solid #c10d0c;
+      border-radius: 50%;
+    }
   }
-  > .more {
-    float: right;
-  }
-  > .circle {
-    width: 15px;
-    height: 15px;
-    border: 4px solid #c10d0c;
-    border-radius: 50%;
+  > .album-list {
+    > ul {
+      margin: 20px 0 0 -40px;
+      padding: 0;
+      > li {
+        width: 182px;
+        height: 234px;
+        padding: 0 0 30px 40px;
+        list-style: none;
+        float: left;
+        // line-height: 2;
+        > .u-cover {
+          width: 140px;
+          height: 140px;
+          color: #ccc;
+          position: relative;
+          display: block;
+          cursor: pointer;
+          border: 1px solid #d9d9d9;
+          > .bottom {
+            line-height: 27px;
+            width: 100%;
+            height: 27px;
+            color: #ccc;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            font-size: 12px;
+          }
+        }
+        > p {
+          margin: 8px 0 3px 0;
+          font-size: 14px;
+        }
+        > p:hover {
+          text-decoration: underline;
+          cursor: pointer;
+        }
+      }
+    }
   }
 }
+.new-album {
+  display: block;
+  > .top-head2 {
+    font-size: 20px;
+    border-bottom: 2px solid #c10d0c;
+    padding-bottom: 5px;
+    > .circle2 {
+      width: 15px;
+      height: 15px;
+      border: 4px solid #c10d0c;
+      border-radius: 50%;
+    }
+  }
+}
+a,
+a:link,
+a:visited {
+  color: #666;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
 .right-list {
   width: 254px;
   background-color: skyblue;

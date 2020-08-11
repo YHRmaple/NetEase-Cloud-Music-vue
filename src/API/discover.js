@@ -1,3 +1,3 @@
 import { get } from '../axios/server'
 
-export const HotPlayList = () => get('/playlist/hot')
+export const getPersonalized = params => get('/personalized', params) // 获取推荐歌单
