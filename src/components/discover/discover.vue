@@ -1,12 +1,16 @@
 <template>
   <div>
-    <el-carousel slot-scope="" trigger="click" height="280px">
+    <el-carousel trigger="click" height="280px">
       <el-carousel-item :style="{ backgroundImage: 'url(' + item.backgroundImg + ')' }" v-for="item in urlList" :key="item.id">
         <a :href="item.href">
           <el-image style="width:730px;height:280px" :src="item.url"></el-image>
         </a>
       </el-carousel-item>
-      <el-image :src="downloadUrl" style="cursor: pointer;position：absolute; left:68.5%; z-index:5; width: 254px; height: 280px" @click="downLoad"></el-image>
+      <el-image
+        :src="downloadUrl"
+        style="cursor: pointer; position: absolute; right: 11%; z-index:20; width: 254px; height: 280px"
+        @click="downLoad"
+      ></el-image>
     </el-carousel>
     <div class="discover-main">
       <!-- 左侧 -->
@@ -44,16 +48,32 @@
             </ul>
           </div>
         </div>
-        <div class="new-album">
-          <div class="top-head2">
-            <div class="circle2" style="width: 15px;height: 15px;border: 4px solid #c10d0c;border-radius: 50%;"></div>
+        <div class="recommend">
+          <div class="top-head">
+            <div class="circle"></div>
             <router-link to="/discover/playlist" class="hot-rec">
               <span style="margin-left:10px">新碟上架</span>
             </router-link>
+            <div class="tab"></div>
             <router-link to="/discover/playlist" class="more" @click.native="changePath()">
               更多
             </router-link>
             <i class="el-icon-right" style="font-size:12px;color:#C10D0C;font-weight: 1000"></i>
+          </div>
+          <div class="album-roller">
+            <el-carousel :autoplay="false" arrow="always" height="180px" indicator-position="none">
+              <el-carousel-item v-for="item in newAlbumList" :key="item.id">
+                <ul>
+                  <li v-for="liItem in item.arrayList" :key="liItem.id">
+                    <div class="album-container">
+                      <el-image style="width:100px;height:100px" :src="liItem.picUrl"></el-image>
+                      <p style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis">{{ liItem.name }}</p>
+                      <p>{{ liItem.artist.name }}</p>
+                    </div>
+                  </li>
+                </ul>
+              </el-carousel-item>
+            </el-carousel>
           </div>
         </div>
       </div>
@@ -67,7 +87,7 @@
   </div>
 </template>
 <script>
-import { getPersonalized } from '../../API/discover'
+import { getPersonalized, getNewAlbum } from '../../API/discover'
 export default {
   data() {
     return {
@@ -154,17 +174,39 @@ export default {
       getInfo: {
         limit: 8
       },
-      personalizedList: []
+      newAlbumInfo: {
+        limit: 10
+      },
+      personalizedList: [],
+      newAlbumList: [
+        {
+          id: 1,
+          arrayList: []
+        },
+        {
+          id: 2,
+          arrayList: []
+        },
+        {
+          id: 3,
+          arrayList: []
+        }
+      ]
     }
   },
   created() {
     this.getPersonalizedList()
+    getNewAlbum().then(res => {
+      this.newAlbumList[0].arrayList = res.data.albums.slice(0, 5)
+      this.newAlbumList[1].arrayList = res.data.albums.slice(5, 10)
+      this.newAlbumList[2].arrayList = res.data.albums.slice(10)
+      console.log(this.newAlbumList)
+    })
   },
   methods: {
     getPersonalizedList() {
       getPersonalized(this.getInfo).then(res => {
         this.personalizedList = res.data.result
-        console.log(this.personalizedList)
       })
     },
     downLoad() {
@@ -209,9 +251,6 @@ export default {
   > .top-head {
     font-size: 20px;
     border-bottom: 2px solid #c10d0c;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
     padding-bottom: 5px;
     > .hot-rec {
       color: #333333;
@@ -221,17 +260,21 @@ export default {
       color: #333333;
     }
     > .tab {
+      width: 320px;
+      display: inline-block;
       margin: 0 0 0 20px;
       color: #666;
       font-size: 12px;
     }
     > .more {
       // float: right;
-      margin-left: 300px;
+      display: inline-block;
+      margin-left: 200px;
       font-size: 12px;
       color: #666;
     }
     > .circle {
+      display: inline-block;
       width: 15px;
       height: 15px;
       border: 4px solid #c10d0c;
@@ -243,12 +286,11 @@ export default {
       margin: 20px 0 0 -40px;
       padding: 0;
       > li {
-        width: 182px;
+        width: 180px;
         height: 234px;
         padding: 0 0 30px 40px;
         list-style: none;
         float: left;
-        // line-height: 2;
         > .u-cover {
           width: 140px;
           height: 140px;
@@ -279,22 +321,66 @@ export default {
         }
       }
     }
+    > ul::after {
+      content: '';
+      clear: both;
+      display: block;
+    }
+  }
+  > .album-roller {
+    width: 686px;
+    height: 186px;
+    margin: 20px 0 37px 0;
+    background-color: #f5f5f5;
+    > .el-carousel /deep/ .el-carousel__container {
+      > .el-carousel__arrow {
+        background-color: transparent;
+        width: 20px;
+        height: 20px;
+        color: #878787;
+        font-size: 20px;
+        > i {
+          font-weight: 1000;
+        }
+      }
+      > .el-carousel__arrow--right {
+        right: 0;
+      }
+      > .el-carousel__arrow--left {
+        left: 0;
+      }
+      > .el-carousel__item ul {
+        ::after {
+          content: '';
+          display: block;
+          clear: both;
+        }
+        > li {
+          width: 110px;
+          height: 150px;
+          margin-left: 11px;
+          list-style: none;
+          float: left;
+          font-size: 12px;
+        }
+      }
+    }
   }
 }
-.new-album {
-  display: block;
-  > .top-head2 {
+/* .new-album {
+  > .top-head {
     font-size: 20px;
     border-bottom: 2px solid #c10d0c;
     padding-bottom: 5px;
-    > .circle2 {
+    > .circle {
+      display: inline-block;
       width: 15px;
       height: 15px;
       border: 4px solid #c10d0c;
       border-radius: 50%;
     }
   }
-}
+} */
 a,
 a:link,
 a:visited {
