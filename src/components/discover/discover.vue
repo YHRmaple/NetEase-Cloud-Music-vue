@@ -15,7 +15,7 @@
     <div class="discover-main">
       <!-- 左侧 -->
       <div class="left-list">
-        <div class="recommend">
+        <div class="part">
           <div class="top-head">
             <div class="circle"></div>
             <router-link to="/discover/playlist" class="hot-rec">
@@ -48,7 +48,7 @@
             </ul>
           </div>
         </div>
-        <div class="recommend">
+        <div class="part">
           <div class="top-head">
             <div class="circle"></div>
             <router-link to="/discover/playlist" class="hot-rec">
@@ -66,14 +66,42 @@
                 <ul>
                   <li v-for="liItem in item.arrayList" :key="liItem.id">
                     <div class="album-container">
-                      <el-image style="width:100px;height:100px" :src="liItem.picUrl"></el-image>
-                      <p style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis">{{ liItem.name }}</p>
-                      <p>{{ liItem.artist.name }}</p>
+                      <el-image style="width:100px;height:100px;cursor:pointer" :src="liItem.picUrl"></el-image>
+                      <p class="al-name">{{ liItem.name }}</p>
+                      <p class="art-name">{{ liItem.artist.name }}</p>
                     </div>
                   </li>
                 </ul>
               </el-carousel-item>
             </el-carousel>
+          </div>
+        </div>
+        <div class="part">
+          <div class="top-head">
+            <div class="circle"></div>
+            <router-link to="/discover/playlist" class="hot-rec">
+              <span style="margin-left:10px">榜单</span>
+            </router-link>
+            <div class="tab top"></div>
+            <router-link to="/discover/playlist" class="more" @click.native="changePath()">
+              更多
+            </router-link>
+            <i class="el-icon-right" style="font-size:12px;color:#C10D0C;font-weight: 1000"></i>
+          </div>
+          <div class="top-list">
+            <el-col class="col" :span="8" v-for="item in toplList" :key="item.id">
+              <div class="top-title">
+                <el-image class="top-cover" :src="item.coverImgUrl"></el-image>
+                <div class="btn">
+                  <p class="title-name">{{ item.name }}</p>
+                  <i class="el-icon-video-play"></i>
+                  <i class="el-icon-folder-add"></i>
+                </div>
+              </div>
+              <el-row class="row" v-for="li in 11" :key="li">
+                {{ li + 'yhr' }}
+              </el-row>
+            </el-col>
           </div>
         </div>
       </div>
@@ -87,7 +115,7 @@
   </div>
 </template>
 <script>
-import { getPersonalized, getNewAlbum } from '../../API/discover'
+import { getPersonalized, getNewAlbum, getTopList } from '../../API/discover'
 export default {
   data() {
     return {
@@ -191,35 +219,57 @@ export default {
           id: 3,
           arrayList: []
         }
-      ]
+      ],
+      toplList: []
     }
   },
   created() {
-    this.getPersonalizedList()
-    getNewAlbum().then(res => {
-      this.newAlbumList[0].arrayList = res.data.albums.slice(0, 5)
-      this.newAlbumList[1].arrayList = res.data.albums.slice(5, 10)
-      this.newAlbumList[2].arrayList = res.data.albums.slice(10)
-      console.log(this.newAlbumList)
-    })
+    this.initializeProject()
   },
   methods: {
-    getPersonalizedList() {
+    /* 获取初始显示数据 */
+    initializeProject() {
+      /* 获取推荐歌单 */
       getPersonalized(this.getInfo).then(res => {
         this.personalizedList = res.data.result
       })
+      /* 获取新碟上架 */
+      getNewAlbum().then(res => {
+        this.newAlbumList[0].arrayList = res.data.albums.slice(0, 5)
+        this.newAlbumList[1].arrayList = res.data.albums.slice(5, 10)
+        this.newAlbumList[2].arrayList = res.data.albums.slice(10)
+        console.log(this.newAlbumList)
+      })
+      /* 获取所有榜单 */
+      getTopList().then(res => {
+        this.toplList = res.data.list.slice(0, 3)
+        console.log(this.toplList)
+      })
     },
+    // 下载
     downLoad() {
       this.$router.push('/download')
     },
+    // 修改当前导航
     changePath() {
       this.resetSetItem('subPath', '/discover/playlist')
-      console.log('123')
+      // console.log('123')
     }
   }
 }
 </script>
 <style lang="less" scoped>
+/deep/ .el-carousel__button {
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+}
+/deep/ .el-carousel__indicator:hover button {
+  background-color: #c20c0c;
+}
+/deep/ .el-carousel__indicator.is-active button {
+  background-color: #c20c0c;
+}
 .el-carousel__item {
   background-position: center center;
   background-size: 6000px;
@@ -227,17 +277,6 @@ export default {
     left: 40%;
     transform: translateX(-50%);
   }
-}
-/deep/ .el-carousel__button {
-  width: 8px;
-  height: 8px;
-  border-radius: 4px;
-}
-/deep/ .el-carousel__button:hover {
-  background-color: #c20c0c;
-}
-/deep/ .el-carousel__indicator.is-active button {
-  background-color: #c20c0c;
 }
 .left-list {
   width: 730px;
@@ -247,7 +286,7 @@ export default {
   padding: 20px 20px 40px 20px;
   border: 1px solid #d3d3d3;
 }
-.recommend {
+.part {
   > .top-head {
     font-size: 20px;
     border-bottom: 2px solid #c10d0c;
@@ -265,6 +304,9 @@ export default {
       margin: 0 0 0 20px;
       color: #666;
       font-size: 12px;
+    }
+    > .top {
+      width: 360px;
     }
     > .more {
       // float: right;
@@ -362,10 +404,88 @@ export default {
           list-style: none;
           float: left;
           font-size: 12px;
+          > .album-container {
+            > .al-name {
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+            }
+            > .al-name:hover {
+              text-decoration: underline;
+              cursor: pointer;
+            }
+            > .art-name {
+              color: #666666;
+            }
+            > .art-name:hover {
+              text-decoration: underline;
+              cursor: pointer;
+            }
+          }
         }
       }
     }
   }
+  > .top-list {
+    height: 472px;
+    border: 1px #d2d2d2 solid;
+    border-right: 0px;
+    margin: 20px 0 37px 0;
+    ::after {
+      content: '';
+      display: block;
+      clear: both;
+    }
+    > .col {
+      background-color: #f4f4f4;
+      background-clip: padding-box;
+      border-right: 1px #d2d2d2 solid;
+      > .row {
+        height: 32px;
+      }
+      > .row:nth-child(2n) {
+        background-clip: padding-box;
+        background-color: #e8e8e8;
+      }
+      > .top-title {
+        width: 230px;
+        height: 118px;
+        padding: 18px 0 0 19px;
+        ::after {
+          content: '';
+          display: block;
+          clear: both;
+        }
+        > .top-cover {
+          width: 80px;
+          height: 80px;
+          float: left;
+          //display: inline;
+        }
+        > .btn {
+          float: left;
+          margin: 4px 0 0 10px;
+          > .title-name {
+            margin: 0;
+            font-size: 14px;
+            font-weight: bold;
+          }
+          > i {
+            font-size: 25px;
+            margin: 10px 10px 0 0;
+            font-weight: bold;
+            color: #b9b9b9;
+          }
+          > el-icon-video-play:hover {
+            color: black;
+          }
+        }
+      }
+    }
+  }
+  /* > .top-list:nth-child(1) {
+    border-right: 1px #d2d2d2 solid;
+  } */
 }
 /* .new-album {
   > .top-head {
